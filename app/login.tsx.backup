@@ -1,0 +1,755 @@
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  StyleSheet,
+  Image,
+  Alert,
+  ActivityIndicator, 
+  KeyboardAvoidingView, 
+  Platform,
+  ScrollView 
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
+import { 
+  useFonts, 
+  Montserrat_400Regular, 
+  Montserrat_500Medium, 
+  Montserrat_600SemiBold, 
+  Montserrat_700Bold 
+} from '@expo-google-fonts/montserrat';
+import AppLoading from 'expo-app-loading';
+import { Colors } from '../constants/Colors';
+import { login, UserRole } from '../hooks/useAuth';
+
+const livingroomImage = require('../../assets/livingroom.jpg');
+
+const LoginScreen = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState<UserRole>('client');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError('');
+      
+      const result = await login(email, password, role);
+      
+      if (result.success) {
+        // Navigate based on user role
+        if (role === 'designer') {
+          router.replace('/(designer-tabs)');
+        } else {
+          router.replace('/(client-tabs)');
+        }
+      } else {
+        setError(result.message || 'Login failed. Please try again.');
+      }
+    } catch (err) {
+      setError('An error occurred during login. Please try again.');
+      console.error('Login error:', err);
+=======
+  Image, 
+  Alert, 
+  ActivityIndicator, 
+  KeyboardAvoidingView, 
+  Platform, 
+  ScrollView 
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
+import { 
+  useFonts, 
+  Montserrat_400Regular, 
+  Montserrat_500Medium, 
+  Montserrat_600SemiBold, 
+  Montserrat_700Bold 
+} from '@expo-google-fonts/montserrat';
+import AppLoading from 'expo-app-loading';
+import { validateUser, setUserSession } from '../hooks/useAuth';
+import { Colors } from '../constants/Colors';
+
+const livingroomImage = require('../assets/livingroom.jpg');
+
+type UserRole = 'client' | 'designer';
+
+export default function Login() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState<UserRole>('client');
+
+  const [fontsLoaded] = useFonts({
+    Montserrat_400Regular,
+    Montserrat_500Medium,
+    Montserrat_600SemiBold,
+    Montserrat_700Bold,
+  });
+
+  const validateEmail = (email: string): boolean => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const handleLogin = async () => {
+    if (!validateEmail(email)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      return;
+    }
+    if (password.length < 6) {
+      Alert.alert('Invalid Password', 'Password must be at least 6 characters.');
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const { isValid, user } = await validateUser(email, password, role);
+      
+      if (!isValid || !user) {
+        Alert.alert('Login Failed', 'Incorrect email, password, or role.');
+        return;
+      }
+
+      await setUserSession(user);
+      
+      // Navigate based on role
+      const targetRoute = role === 'designer' ? '/designerDashboard' : '/(tabs)/home';
+      router.replace(targetRoute);
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+>>>>>>> origin/main
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+<<<<<<< HEAD
+  const handleTestUser = (testRole: UserRole) => {
+    setRole(testRole);
+    setEmail(testRole === 'client' ? 'client@example.com' : 'designer@example.com');
+    setPassword('password123');
+  };
+
+  const [fontsLoaded] = useFonts({
+    'Montserrat-Regular': Montserrat_400Regular,
+    'Montserrat-Medium': Montserrat_500Medium,
+    'Montserrat-SemiBold': Montserrat_600SemiBold,
+    'Montserrat-Bold': Montserrat_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return <AppLoading />;
+  }
+
+  return (
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+        ) : null}
+
+        <View style={styles.roleContainer}>
+          <TouchableOpacity
+            style={[
+              styles.roleButton,
+              role === 'client' && styles.roleButtonActive
+            ]}
+            onPress={() => setRole('client')}
+            disabled={isLoading}
+          >
+            <Text style={[
+              styles.roleButtonText,
+              role === 'client' && styles.roleButtonTextActive
+            ]}>
+              Client
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.roleButton,
+              role === 'designer' && styles.roleButtonActive
+            ]}
+            onPress={() => setRole('designer')}
+            disabled={isLoading}
+          >
+            <Text style={[
+              styles.roleButtonText,
+              role === 'designer' && styles.roleButtonTextActive
+            ]}>
+              Designer
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Email</Text>
+          <View style={styles.inputWrapper}>
+            <MaterialIcons 
+              name="email" 
+              size={20} 
+              color={Colors.light.textSecondary} 
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your email"
+              placeholderTextColor={Colors.light.textSecondary}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!isLoading}
+            />
+          </View>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Password</Text>
+          <View style={styles.passwordInputContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              placeholder="Enter your password"
+=======
+      <Image
+        source={livingroomImage}
+        style={styles.backgroundImage}
+        resizeMode="cover"
+      />
+      
+      <View style={styles.overlay} />
+      
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.content}>
+          <Text style={styles.title}>Welcome Back</Text>
+          <Text style={styles.subtitle}>Sign in to continue to your {role} account</Text>
+          
+          {/* Role Toggle */}
+          <View style={styles.roleToggleContainer}>
+            <TouchableOpacity 
+              style={[
+                styles.roleButton, 
+                role === 'client' && styles.roleButtonActive
+              ]}
+              onPress={() => setRole('client')}
+            >
+              <Text style={[
+                styles.roleButtonText,
+                role === 'client' && styles.roleButtonTextActive
+              ]}>
+                Client
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[
+                styles.roleButton, 
+                role === 'designer' && styles.roleButtonActive
+              ]}
+              onPress={() => setRole('designer')}
+            >
+              <Text style={[
+                styles.roleButtonText,
+                role === 'designer' && styles.roleButtonTextActive
+              ]}>
+                Designer
+              </Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Email Input */}
+          <View style={styles.inputContainer}>
+            <MaterialIcons name="email" size={20} color={Colors.light.textSecondary} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Email address"
+              placeholderTextColor={Colors.light.textSecondary}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoComplete="email"
+              textContentType="emailAddress"
+            />
+          </View>
+          
+          {/* Password Input */}
+          <View style={styles.inputContainer}>
+            <MaterialIcons name="lock" size={20} color={Colors.light.textSecondary} style={styles.inputIcon} />
+            <TextInput
+              style={[styles.input, styles.passwordInput]}
+              placeholder="Password"
+>>>>>>> origin/main
+              placeholderTextColor={Colors.light.textSecondary}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+<<<<<<< HEAD
+              autoCapitalize="none"
+              editable={!isLoading}
+            />
+            <TouchableOpacity 
+              style={styles.togglePasswordButton}
+              onPress={() => setShowPassword(!showPassword)}
+              disabled={isLoading}
+=======
+              autoComplete="password"
+              textContentType="password"
+            />
+            <TouchableOpacity 
+              style={styles.passwordToggle}
+              onPress={() => setShowPassword(!showPassword)}
+>>>>>>> origin/main
+            >
+              <MaterialIcons 
+                name={showPassword ? 'visibility-off' : 'visibility'} 
+                size={20} 
+                color={Colors.light.textSecondary} 
+              />
+            </TouchableOpacity>
+          </View>
+<<<<<<< HEAD
+        </View>
+
+        <TouchableOpacity 
+          style={styles.forgotPassword}
+          onPress={() => router.push('/forgot-password')}
+          disabled={isLoading}
+        >
+          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.loginButton, isLoading && { opacity: 0.7 }]}
+          onPress={handleLogin}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={styles.loginButtonText}>Sign In</Text>
+          )}
+        </TouchableOpacity>
+
+        <View style={styles.signupContainer}>
+          <Text style={styles.signupText}>Don't have an account?</Text>
+          <TouchableOpacity 
+            onPress={() => router.push('/register')}
+            disabled={isLoading}
+          >
+            <Text style={styles.signupLink}>Sign Up</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.testUsersContainer}>
+          <TouchableOpacity
+            style={styles.testUsersButton}
+            onPress={() => handleTestUser(role === 'client' ? 'designer' : 'client')}
+            disabled={isLoading}
+          >
+            <MaterialIcons name="person" size={16} color={Colors.light.primary} />
+            <Text style={styles.testUsersButtonText}>
+              Use {role === 'client' ? 'Designer' : 'Client'} Test Account
+            </Text>
+=======
+          
+          {/* Forgot Password */}
+          <TouchableOpacity 
+            style={styles.forgotPassword} 
+            onPress={() => router.push('/forgotPassword')}
+          >
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
+          
+          {/* Login Button */}
+          <TouchableOpacity 
+            style={styles.loginButton} 
+            onPress={handleLogin}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Sign In</Text>
+            )}
+          </TouchableOpacity>
+          
+          {/* Sign Up Link */}
+          <View style={styles.signupContainer}>
+            <Text style={styles.signupText}>Don&apos;t have an account? </Text>
+            <TouchableOpacity onPress={() => router.push('/chooseRegister')}>
+              <Text style={styles.signupLink}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Test Users Button */}
+          <TouchableOpacity 
+            style={styles.testUsersButton}
+            onPress={() => router.push('/test-setup')}
+          >
+            <MaterialIcons name="people" size={16} color={Colors.light.primary} />
+            <Text style={styles.testUsersButtonText}> Test Users</Text>
+>>>>>>> origin/main
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+<<<<<<< HEAD
+};
+=======
+}
+>>>>>>> origin/main
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+<<<<<<< HEAD
+    backgroundColor: '#FFFFFF',
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  logo: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666666',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  inputLabel: {
+    fontSize: 14,
+    color: '#666666',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  inputIcon: {
+    padding: 15,
+  },
+  input: {
+    flex: 1,
+    padding: 15,
+    fontSize: 16,
+    color: '#1A1A1A',
+  },
+  passwordInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passwordInput: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
+    borderWidth: 1,
+    borderRightWidth: 0,
+    borderColor: '#E0E0E0',
+    padding: 15,
+    fontSize: 16,
+    color: '#1A1A1A',
+  },
+  togglePasswordButton: {
+    backgroundColor: '#F5F5F5',
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+    borderWidth: 1,
+    borderLeftWidth: 0,
+    borderColor: '#E0E0E0',
+    padding: 15,
+    justifyContent: 'center',
+  },
+  roleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  roleButton: {
+    flex: 1,
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: '#F5F5F5',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    marginRight: 10,
+    alignItems: 'center',
+  },
+  roleButtonActive: {
+    backgroundColor: Colors.light.primary,
+    borderColor: Colors.light.primary,
+  },
+  roleButtonText: {
+    color: '#1A1A1A',
+    fontWeight: '500',
+  },
+  roleButtonTextActive: {
+    color: '#FFFFFF',
+  },
+  loginButton: {
+    backgroundColor: Colors.light.primary,
+    padding: 18,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  loginButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  forgotPassword: {
+    alignSelf: 'flex-end',
+    marginTop: 10,
+=======
+    backgroundColor: Colors.light.background,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+  backgroundImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  content: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    margin: 20,
+    borderRadius: 16,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: Colors.light.primary,
+    marginBottom: 8,
+    textAlign: 'center',
+    fontFamily: 'Montserrat_700Bold',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    textAlign: 'center',
+    marginBottom: 24,
+    fontFamily: 'Montserrat_400Regular',
+  },
+  roleToggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: Colors.light.card,
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+  },
+  roleButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roleButtonActive: {
+    backgroundColor: Colors.light.primary,
+  },
+  roleButtonText: {
+    fontFamily: 'Montserrat_600SemiBold',
+    color: Colors.light.textSecondary,
+    fontSize: 14,
+  },
+  roleButtonTextActive: {
+    color: Colors.light.background,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.card,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  input: {
+    flex: 1,
+    height: 56,
+    fontFamily: 'Montserrat_400Regular',
+    color: Colors.light.text,
+    fontSize: 16,
+  },
+  passwordInput: {
+    paddingRight: 40,
+  },
+  passwordToggle: {
+    position: 'absolute',
+    right: 16,
+    padding: 8,
+  },
+  forgotPassword: {
+    alignSelf: 'flex-end',
+    marginBottom: 24,
+>>>>>>> origin/main
+  },
+  forgotPasswordText: {
+    color: Colors.light.primary,
+    fontSize: 14,
+<<<<<<< HEAD
+=======
+    fontFamily: 'Montserrat_500Medium',
+  },
+  loginButton: {
+    backgroundColor: Colors.light.primary,
+    height: 56,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    shadowColor: Colors.light.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Montserrat_600SemiBold',
+>>>>>>> origin/main
+  },
+  signupContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+<<<<<<< HEAD
+    marginTop: 20,
+  },
+  signupText: {
+    color: '#666666',
+  },
+  signupLink: {
+    color: Colors.light.primary,
+    fontWeight: '600',
+    marginLeft: 5,
+  },
+  errorContainer: {
+    backgroundColor: 'rgba(229, 57, 53, 0.1)',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  errorText: {
+    color: '#E53935',
+    textAlign: 'center',
+  },
+  testUsersContainer: {
+    marginTop: 30,
+    alignItems: 'center',
+=======
+    marginTop: 24,
+  },
+  signupText: {
+    color: Colors.light.textSecondary,
+    fontSize: 14,
+    fontFamily: 'Montserrat_400Regular',
+  },
+  signupLink: {
+    color: Colors.light.primary,
+    fontFamily: 'Montserrat_600SemiBold',
+    marginLeft: 4,
+>>>>>>> origin/main
+  },
+  testUsersButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+<<<<<<< HEAD
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.light.primary,
+  },
+  testUsersButtonText: {
+    color: Colors.light.primary,
+    marginLeft: 5,
+    fontWeight: '500',
+  },
+});
+
+export default LoginScreen;
+=======
+    justifyContent: 'center',
+    marginTop: 8,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: 'rgba(101, 87, 255, 0.1)',
+  },
+  testUsersButtonText: {
+    color: Colors.light.primary,
+    fontFamily: 'Montserrat_600SemiBold',
+    fontSize: 14,
+  },
+});
+>>>>>>> origin/main
